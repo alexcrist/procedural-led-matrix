@@ -1,4 +1,4 @@
-# Procedural LED Fractals
+# LED Matrix Projects
 
 Drawing moving images on an LED matrix powered by a Raspberry Pi Zero.
 
