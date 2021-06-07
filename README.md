@@ -4,4 +4,6 @@
 
 ## References
 
-https://medium.com/@yvanscher/playing-with-perlin-noise-generating-realistic-archipelagos-b59f004d8401
+* https://github.com/hzeller/rpi-rgb-led-matrix
+* https://howchoo.com/pi/raspberry-pi-led-matrix-panel
+* https://medium.com/@yvanscher/playing-with-perlin-noise-generating-realistic-archipelagos-b59f004d8401
