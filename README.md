@@ -2,7 +2,13 @@
 
 Drawing moving images on an LED matrix powered by a Raspberry Pi Zero.
 
+## `procedural.py`
+
 <img src="fractal.jpg" width="700px" />
+
+## `sin-wave.py`
+
+
 
 ## References
 
