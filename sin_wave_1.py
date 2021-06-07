@@ -44,23 +44,33 @@ def next_color(r, g, b, rate):
     if b == 255:
         return min(r + rate, 255), g, b
 
+#columns = [*range(options.cols)]
+
 color_sin = (255, 0, 0)
 color_cos = (0, 255, 0)
+
+rate = round(256 * 12 / 64)
 
 while True:
 
     offset += 2 * math.pi / 64
 
-    rate = round(256 * 6 / 64)
     color_sin = next_color(*color_sin, rate)
     color_cos = next_color(*color_cos, rate)
 
+    local_color_sin = color_sin
+    local_color_cos = color_cos
+
+#    t = [2 * math.pi * c / 64 + offset for c in columns]
+
     for c in range(options.cols):
+        local_color_sin = next_color(*local_color_sin, rate)
+        local_color_cos = next_color(*local_color_cos, rate)
 
         t = 2 * math.pi * c / options.cols + offset
 
-        plot_ys(c, t, math.sin, canvas, color_sin)
-        plot_ys(c, t, math.cos, canvas, color_cos)
+        plot_ys(c, t, math.sin, canvas, local_color_sin)
+        plot_ys(c, t, math.cos, canvas, local_color_cos)
 
     canvas = matrix.SwapOnVSync(canvas)
     canvas.Clear()
