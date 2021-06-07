@@ -1,6 +1,8 @@
 # Procedural LED Fractals
 
-<img src="fractal.jpg" width="500px" />
+Drawing moving images on an LED matrix powered by a Raspberry Pi Zero.
+
+<img src="fractal.jpg" width="700px" />
 
 ## References
 
