@@ -51,7 +51,7 @@ TREE_COLOR = graphics.Color(162, 42, 42)
 
 # Initializers =================================================================
 
-BRANCH_LENGTH = 3
+BRANCH_LENGTH = 30
 
 def generate_starter_tree():
     return [{
@@ -63,18 +63,18 @@ def generate_starter_tree():
         }]
     }]
 
-def generate_random_dots(n_dots, left=0, right=63, top=0, bottom=31):
+def generate_random_dots(n_dots, left=0, right=63, top=0, bottom=31, offset=8):
     dots = np.zeros((right - left + 1, bottom - left + 1))
     for _ in range(n_dots):
-        x = random.randint(left, right)
+        x = random.randint(left+offset, right)
         y = random.randint(top, bottom)
         dots[x][y] = 1
     return dots
 
 # Procedural updating ==========================================================
 
-def find_nearby_points(x, y, radius = 12.0) -> List[Tuple[int, int]]:
-    """ create a small collection of points in a neighborhood of some point 
+def find_nearby_points(x, y, radius = 12.0):
+    """ create a small collection of points in a neighborhood of some point
     """
     neighborhood = []
 
@@ -82,7 +82,7 @@ def find_nearby_points(x, y, radius = 12.0) -> List[Tuple[int, int]]:
     for i in range(-X, X + 1):
         Y = int(pow(radius * radius - i * i, 1/2))
         for j in range(-Y, Y + 1):
-            neighborhood.append((x + i, y + j))
+            neighborhood.append((int(round(x + i)),int(round(y + j))))
 
     return neighborhood
 
@@ -94,7 +94,7 @@ def get_next_branch(parent, child, dots):
 
     nearby_dots = False
     for (x, y) in find_nearby_points(child["x"], child["y"], min_radius):
-        if dots[x][y]:
+        if dots[x][y]:  # TODO - x,y can be out of range of the board. FIX!
             nearby_dots = True
             dots[x][y] = 0
 
@@ -109,7 +109,7 @@ def get_next_branch(parent, child, dots):
 
     if len(found_dots) == 0:
         return child, dots
-    
+
     # todo - what happens, if the vector is zero? hmm?
     x, y = zip(*found_dots)
     x_avg = sum(x) / len(x)
@@ -117,19 +117,19 @@ def get_next_branch(parent, child, dots):
 
     x_avg -= child['x']
     y_avg -= child['y']
-    
+
     norm = np.linalg.norm((x_avg, y_avg))
 
-    x = x_avg / norm * BRANCH_LENGTH
-    y = y_avg / norm * BRANCH_LENGTH
+    x = x_avg / norm
+    y = y_avg / norm
 
     x += child['x']
     y += child['y']
 
-    child['children'] = {
+    child['children'] = [{
         'x': x,
         'y': y
-    }
+    }]
 
     return child, dots
 
@@ -137,18 +137,26 @@ def get_next_state(tree, dots):
     '''
         1. if no dots are near a branch-end, just grow straight
         2. if dots are < GROW_RADIUS from branch-end, grow towards nearby dots
-        3. if dots are < BRANCH_RADIUS from branch-end, delete dots and branch 
+        3. if dots are < BRANCH_RADIUS from branch-end, delete dots and branch
     '''
+
+    dots = np.array(dots)
+
+    # Handle root nodes
+    is_list = isinstance(tree, list)
+    if is_list:
+        for i, root_node in enumerate(tree):
+            tree[i], new_dots = get_next_state(root_node, dots)
+            dots *= new_dots
+        return tree, dots
 
     if 'children' not in tree:
         raise Exception('You goofed')
 
-    dots = np.array(dots)
-
     for i, child in enumerate(tree['children']):
 
         if 'children' in child:
-            tree['children'][i], child_dots = get_next_state(tree['children'], dots)
+            tree['children'][i], child_dots = get_next_state(child, dots)
             dots *= child_dots
 
         else:
@@ -159,19 +167,18 @@ def get_next_state(tree, dots):
 
 # Drawing data to LED matrix ===================================================
 
-def draw_tree(canvas, tree=[]):
-    print(tree)
+def draw_tree(canvas, tree):
     for node in tree:
         start_x = node["x"]
         start_y = node["y"]
         children = node.get("children", [])
         for child in children:
             graphics.DrawLine(
-                canvas, 
-                round(start_x), 
-                round(start_y), 
-                round(child["x"]), 
-                round(child["y"]), 
+                canvas,
+                round(start_x),
+                round(start_y),
+                round(child["x"]),
+                round(child["y"]),
                 TREE_COLOR
             )
         if children:
@@ -201,7 +208,7 @@ tree = generate_starter_tree()
 dots = generate_random_dots(100)
 
 while True:
-
+    print(dots)
     canvas = draw(canvas, tree, dots)
 
     tree, dots = get_next_state(tree, dots)
