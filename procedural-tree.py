@@ -5,6 +5,8 @@ import random
 
 from rgbmatrix import RGBMatrix, RGBMatrixOptions
 
+# LED matrix config ===========================================================
+
 # Configuration for the matrix
 options = RGBMatrixOptions()
 options.rows = 32
@@ -18,6 +20,8 @@ matrix = RGBMatrix(options = options)
 
 # Create a canvas to draw on
 canvas = matrix.CreateFrameCanvas()
+
+# Data structures =============================================================
 
 # Tree structure
 # [
@@ -42,42 +46,65 @@ canvas = matrix.CreateFrameCanvas()
 #     [0, 0, 1, ..., 1]
 # ]
 
-def get_next_tree(last_tree):
-    '''
-        Takes a a previous tree state and generates the next
-        tree state
-    '''
-    pass
+# Initializers ================================================================
+
+def generate_starter_tree():
+    return [{
+        'x': 0,
+        'y': 16,
+        'children': [{
+            'x': 4,
+            'y': 16
+        }]
+    }];
 
 def generate_random_dots(n_dots, left=0, right=63, top=0, bottom=31):
-    dots = np.zeros((right - left, bottom - left))
+    dots = np.zeros((right - left + 1, bottom - left + 1))
     for _ in range(n_dots):
         x = random.randint(left, right)
         y = random.randint(top, bottom)
         dots[x][y] = 1
     return dots
 
-def draw_tree():
+# Procedural updating =========================================================
+
+def get_next_state(tree, dots):
+    return tree, dots
+
+# Drawing data to LED matrix ==================================================
+
+def draw_tree(canvas, tree=[]):
     pass
 
-def draw_dots(dots):
+def draw_dots(canvas, dots):
     for col in range(options.cols):
         for row in range(options.rows):
-            canvas.SetPixel(col, row, (0, 255, 0))
+            if dots[col][row]:
+                canvas.SetPixel(col, row, 0, 255, 0)
 
 def draw(canvas):
-    tree = get_next_tree()
-    dots = generate_random_dots(100)
 
     draw_tree(canvas, tree)
     draw_dots(canvas, dots)
-    
+
     canvas = matrix.SwapOnVSync(canvas)
     canvas.Clear()
 
     return canvas
 
-# Entrypoint
+# Entrypoint ==================================================================
+
+canvas = matrix.CreateFrameCanvas()
+
+tree = generate_starter_tree()
+dots = generate_random_dots(100)
+
 while True:
-    canvas = matrix.CreateFrameCanvas()
-    canvas = draw()  
+
+    canvas = draw(canvas)
+
+    tree, dots = get_next_state(tree, dots)
+
+
+
+
