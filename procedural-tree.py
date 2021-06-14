@@ -4,6 +4,7 @@ import numpy as np
 import random
 
 from rgbmatrix import RGBMatrix, RGBMatrixOptions
+from rgbmatrix import graphics
 
 # LED matrix config ============================================================
 
@@ -20,6 +21,8 @@ matrix = RGBMatrix(options = options)
 
 # Create a canvas to draw on
 canvas = matrix.CreateFrameCanvas()
+
+TREE_COLOR = graphics.Color(162, 42, 42)
 
 # Data structures ==============================================================
 
@@ -74,7 +77,15 @@ def get_next_state(tree, dots):
 # Drawing data to LED matrix ===================================================
 
 def draw_tree(canvas, tree=[]):
-    pass
+    for node in tree:
+        start_x = node["x"]
+        start_y = node["y"]
+        for child in tree["children"]:
+            graphics.DrawLine(
+                canvas, start_x, start_y, child["x"], child["y"], TREE_COLOR
+            )
+            draw_tree(canvas, child)
+
 
 def draw_dots(canvas, dots):
     for col in range(options.cols):
