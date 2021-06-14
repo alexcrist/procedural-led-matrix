@@ -51,12 +51,14 @@ TREE_COLOR = graphics.Color(162, 42, 42)
 
 # Initializers =================================================================
 
+BRANCH_LENGTH = 3
+
 def generate_starter_tree():
     return [{
         'x': 0,
         'y': 16,
         'children': [{
-            'x': 4,
+            'x': BRANCH_LENGTH,
             'y': 16
         }]
     }]
@@ -71,7 +73,88 @@ def generate_random_dots(n_dots, left=0, right=63, top=0, bottom=31):
 
 # Procedural updating ==========================================================
 
+def find_nearby_points(x, y, radius = 12.0) -> List[Tuple[int, int]]:
+    """ create a small collection of points in a neighborhood of some point 
+    """
+    neighborhood = []
+
+    X = int(radius)
+    for i in range(-X, X + 1):
+        Y = int(pow(radius * radius - i * i, 1/2))
+        for j in range(-Y, Y + 1):
+            neighborhood.append((x + i, y + j))
+
+    return neighborhood
+
+def get_next_branch(parent, child, dots):
+    min_radius = 2
+    max_radius = 12
+
+    dots = np.array(dots)
+
+    nearby_dots = False
+    for (x, y) in find_nearby_points(child["x"], child["y"], min_radius):
+        if dots[x][y]:
+            nearby_dots = True
+            dots[x][y] = 0
+
+    if nearby_dots:
+        # TODO: branch
+        return child, dots
+
+    found_dots = []
+    for (x, y) in find_nearby_points(child["x"], child["y"], max_radius):
+        if dots[x][y]:
+            found_dots.append((x,y))
+
+    if len(found_dots) == 0:
+        return child, dots
+    
+    # todo - what happens, if the vector is zero? hmm?
+    x, y = zip(*found_dots)
+    x_avg = sum(x) / len(x)
+    y_avg = sum(y) / len(y)
+
+    x_avg -= child['x']
+    y_avg -= child['y']
+    
+    norm = np.linalg.norm((x_avg, y_avg))
+
+    x = x_avg / norm * BRANCH_LENGTH
+    y = y_avg / norm * BRANCH_LENGTH
+
+    x += child['x']
+    y += child['y']
+
+    child['children'] = {
+        'x': x,
+        'y': y
+    }
+
+    return child, dots
+
 def get_next_state(tree, dots):
+    '''
+        1. if no dots are near a branch-end, just grow straight
+        2. if dots are < GROW_RADIUS from branch-end, grow towards nearby dots
+        3. if dots are < BRANCH_RADIUS from branch-end, delete dots and branch 
+    '''
+
+    if 'children' not in tree:
+        raise Exception('You goofed')
+
+    dots = np.array(dots)
+
+    for i, child in enumerate(tree['children']):
+
+        if 'children' in child:
+            tree['children'][i], child_dots = get_next_state(tree['children'], dots)
+            dots *= child_dots
+
+        else:
+            tree['children'][i], child_dots = get_next_branch(tree, child, dots)
+            dots *= child_dots
+
     return tree, dots
 
 # Drawing data to LED matrix ===================================================
@@ -84,11 +167,15 @@ def draw_tree(canvas, tree=[]):
         children = node.get("children", [])
         for child in children:
             graphics.DrawLine(
-                canvas, start_x, start_y, child["x"], child["y"], TREE_COLOR
+                canvas, 
+                round(start_x), 
+                round(start_y), 
+                round(child["x"]), 
+                round(child["y"]), 
+                TREE_COLOR
             )
         if children:
             draw_tree(canvas, children)
-
 
 def draw_dots(canvas, dots):
     for col in range(options.cols):
