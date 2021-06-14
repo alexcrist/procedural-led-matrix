@@ -5,7 +5,7 @@ import random
 
 from rgbmatrix import RGBMatrix, RGBMatrixOptions
 
-# LED matrix config ===========================================================
+# LED matrix config ============================================================
 
 # Configuration for the matrix
 options = RGBMatrixOptions()
@@ -21,7 +21,7 @@ matrix = RGBMatrix(options = options)
 # Create a canvas to draw on
 canvas = matrix.CreateFrameCanvas()
 
-# Data structures =============================================================
+# Data structures ==============================================================
 
 # Tree structure
 # [
@@ -46,7 +46,7 @@ canvas = matrix.CreateFrameCanvas()
 #     [0, 0, 1, ..., 1]
 # ]
 
-# Initializers ================================================================
+# Initializers =================================================================
 
 def generate_starter_tree():
     return [{
@@ -66,12 +66,12 @@ def generate_random_dots(n_dots, left=0, right=63, top=0, bottom=31):
         dots[x][y] = 1
     return dots
 
-# Procedural updating =========================================================
+# Procedural updating ==========================================================
 
 def get_next_state(tree, dots):
     return tree, dots
 
-# Drawing data to LED matrix ==================================================
+# Drawing data to LED matrix ===================================================
 
 def draw_tree(canvas, tree=[]):
     pass
@@ -92,7 +92,7 @@ def draw(canvas):
 
     return canvas
 
-# Entrypoint ==================================================================
+# Entrypoint ===================================================================
 
 canvas = matrix.CreateFrameCanvas()
 
