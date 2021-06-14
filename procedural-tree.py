@@ -81,7 +81,7 @@ def draw_tree(canvas, tree=[]):
     for node in tree:
         start_x = node["x"]
         start_y = node["y"]
-        children = node.get("children", []])
+        children = node.get("children", [])
         for child in children:
             graphics.DrawLine(
                 canvas, start_x, start_y, child["x"], child["y"], TREE_COLOR
