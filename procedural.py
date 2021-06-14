@@ -34,14 +34,14 @@ def intensity_to_color(intensity):
         return (200, 100, 50)
     return (255, 255, 255)
 
-def make_map():
+def make_map(ox, oy):
     world = np.zeros(shape)
     for i in range(shape[0]):
         for j in range(shape[1]):
             world[i][j] = noise.pnoise2(
-                i/scale,
-                j/scale,
-                octaves=6,
+                (i + ox)/scale,
+                (j + oy)/scale,
+                octaves=10,
                 persistence=0.5,
                 lacunarity=2.0,
                 repeatx=shape[0],
@@ -50,18 +50,18 @@ def make_map():
             )
     return world
 
-fractal_map = make_map()
 
-flat_map = [v for row in fractal_map for v in row]
-
-print('max', max(flat_map))
-print('min', min(flat_map))
-print('hist', np.histogram(flat_map))
+offset_x = 0
+offset_y = 0
 
 while True:
 
     cols, rows = shape
 
+    offset_x += 1
+    offset_y += 1
+
+    fractal_map = make_map(offset_x, offset_y)
     for col in range(cols):
         for row in range(rows):
 
