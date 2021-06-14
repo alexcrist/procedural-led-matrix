@@ -59,7 +59,7 @@ def generate_starter_tree():
             'x': 4,
             'y': 16
         }]
-    }];
+    }]
 
 def generate_random_dots(n_dots, left=0, right=63, top=0, bottom=31):
     dots = np.zeros((right - left + 1, bottom - left + 1))
@@ -77,6 +77,7 @@ def get_next_state(tree, dots):
 # Drawing data to LED matrix ===================================================
 
 def draw_tree(canvas, tree=[]):
+    print(tree)
     for node in tree:
         start_x = node["x"]
         start_y = node["y"]
@@ -93,7 +94,7 @@ def draw_dots(canvas, dots):
             if dots[col][row]:
                 canvas.SetPixel(col, row, 0, 255, 0)
 
-def draw(canvas):
+def draw(canvas, tree, dots):
 
     draw_tree(canvas, tree)
     draw_dots(canvas, dots)
@@ -112,7 +113,7 @@ dots = generate_random_dots(100)
 
 while True:
 
-    canvas = draw(canvas)
+    canvas = draw(canvas, tree, dots)
 
     tree, dots = get_next_state(tree, dots)
 
