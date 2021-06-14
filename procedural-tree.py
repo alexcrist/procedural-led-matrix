@@ -85,7 +85,7 @@ def draw_tree(canvas, tree=[]):
             graphics.DrawLine(
                 canvas, start_x, start_y, child["x"], child["y"], TREE_COLOR
             )
-        draw_tree(canvas, node["children"])
+        draw_tree(canvas, node.get("children", []))
 
 
 def draw_dots(canvas, dots):
